@@ -10,6 +10,13 @@
 
 	<target name="init" description="setup project directories">
 		<mkdir dir="${build.dir}/classes" />
+		<mkdir dir="${testing.dir}/Inputs" />
+		<mkdir dir="${testing.dir}/Inputs/default" />
+		<exec dir="${testing.dir}" executable="python3" failonerror="true" >
+			<arg line=" inputGen.py 11 4" />
+		</exec>
+		<move file="${testing.dir}/Inputs/input_4d_11p.dat" todir="${testing.dir}/Inputs/default" />
+
 	</target>
 
 	<target name="compile" depends="init" description="compile java sources">
