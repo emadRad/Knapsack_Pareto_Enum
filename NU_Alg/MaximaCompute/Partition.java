@@ -1,6 +1,8 @@
 package NU_Alg.MaximaCompute;
 
 import NU_Alg.NU_Core.Item;
+import NU_Alg.NU_Core.ItemLabel;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -18,16 +20,17 @@ public class Partition {
 
     double median_value;
 
+    ItemLabel []  componentLabels;
+
 
     // the component of.getVector() according to which the partitioning is done
     private int partitionComponent;
 
-    public Partition(List<Item> a, int partitionComponent){
+    public Partition(List<Item> a, int partitionComponent, ItemLabel [] cl ){
         arr = a;
         this.partitionComponent = partitionComponent;
+        componentLabels = cl;
     }
-
-    public Partition(){}
 
 
     public void setList(List<Item> a){
@@ -37,7 +40,6 @@ public class Partition {
     public void setPartitionComponent(int pc){
         partitionComponent = pc;
     }
-
 
 
 
@@ -82,6 +84,9 @@ public class Partition {
         while( k>=0 && getValue(first_index,k) == getValue(second_index,k) )
             k--;
         boolean return_value=true;
+
+        //if two vectors are equal the one with bigger ranking
+        // dominates the one with lesser ranking
         if ( k == -1 ) {
             if (arr.get(first_index).getVector().getRank() > arr.get(second_index).getVector().getRank())
                 return true;
@@ -89,9 +94,9 @@ public class Partition {
                 return false;
         }
         if(getValue(first_index,k) > getValue(second_index,k))
-            return_value = true;
+            return_value = componentLabels[k]==ItemLabel.WEIGHT ? false: true;
         else if(getValue(first_index,k) < getValue(second_index,k))
-            return_value = false;
+            return_value = componentLabels[k]==ItemLabel.WEIGHT ? true: false;
 
         return return_value;
     }

@@ -23,7 +23,7 @@ public class Main {
         if(vectors.size()==0)
             return;
 
-        sortVectors(vectors);
+        sortVectors(vectors,itemLabels);
 
 
         List<Item> linked_array = new ArrayList<>();
@@ -41,6 +41,8 @@ public class Main {
             }
             linked_array.add(node);
         }
+        node.getVector().setComponentLabels(itemLabels);
+
         // the max and min vectors in component 0
         Vector  minVector_comp0 = linked_array.get(0).getVector();
         Vector maxVector_comp0 = linked_array.get(linked_array.size()-1).getVector();
@@ -48,10 +50,18 @@ public class Main {
 
         int dimension = vectors.get(0).getDimension();
 
+//        for(ItemLabel il : itemLabels)
+//            System.out.print(il+" ");
+//        System.out.println();
+//        for(Item item: linked_array) {
+//            item.getVector().print();
+//        }
+//        System.out.println();
 
-//        System.out.print(linked_array.size()+","+dimension);
 
-        System.out.println(linked_array.size()+" "+dimension);
+        System.out.print(linked_array.size()+","+dimension);
+
+//        System.out.println(linked_array.size()+","+dimension);
         List<Item> linked_array_1 =new ArrayList<>(linked_array);
 
         int partition_component = dimension-1;
@@ -67,15 +77,23 @@ public class Main {
             maximals = mf.find_maxima_base3(linked_array);
         }
 
+        System.out.print(","+maximals.size()+"\n");
 
 
+        if(!mf.isCorrect(maximals)) {
+            System.out.println("Not correct");
+            System.exit(1);
+        }
+//        else
+//            System.out.println("It is correct");
 
 
         List<Item> maximals_1  = mf.maxima_naive(linked_array_1,dimension);
 
         if(!listEqualsNoOrder(maximals_1,maximals)) {
-            System.out.println("Not equal");
+            System.out.println("Not equal with the result of naive");
             System.out.println(maximals.size()+" "+maximals_1.size());
+            System.exit(1);
         }
 
     }
@@ -101,71 +119,36 @@ public class Main {
         return s1.equals(s2);
     }
 
-    // TODO it just works for dimension<64 (size of long in java) -> marriage_base_k
-    public void checkResult(List<Item> vectors) throws Exception {
-
-        List<Item> maximals = vectors;
-
-        long bitSet = 0;
-        int d = vectors.get(0).getVector().getDimension();
-        long set = (1<<d)-1;
-        boolean correct=true;
-        int equal_comp_num=0;
-
-
-        for (int i=0;i<maximals.size();i++){
-            for (int j=0;j<maximals.size();j++) {
-                bitSet = 0;
-                equal_comp_num =0;
-                for (int k = 0; k < d; k++) {
-                    if (maximals.get(i).getVector().getComponent(k) < maximals.get(j).getVector().getComponent(k)) {
-                        bitSet |= (1 << k);
-                    }
-                    else if(maximals.get(i).getVector().getComponent(k) == maximals.get(j).getVector().getComponent(k)){
-                            equal_comp_num++;
-                    }
-                }
-                if(equal_comp_num!=d)
-                    if( (0 == bitSet || bitSet==(1<<d)-1) && i!=j){
-                        correct = false;
-                        System.out.println(bitSet);
-                        maximals.get(i).getVector().print();
-                        maximals.get(j).getVector().print();
-                        System.out.println();
-                    }
-            }
-        }
-        if(!correct)
-            System.out.println("It is not correct");
-//        else
-//            System.out.println("It is correct.");
-
-    }
 
 
    /*
    * Sorting vectors lexicographically
    * */
-    public void sortVectors(List<Vector> vectors){
+    public void sortVectors(List<Vector> vectors, ItemLabel [] itemLabels){
         Collections.sort(vectors, new Comparator<Vector>() {
             @Override
             public int compare(Vector o1, Vector o2) {
+                int return_v=0;
                 int k=0;
                 try {
                     while( k<o1.getDimension() && o1.getComponent(k)==o2.getComponent(k))
                         k++;
                     if( k==o1.getDimension() )
                         return 0;
-                    if(o1.getComponent(k) > o2.getComponent(k))
-                        return 1;
-                    if(o1.getComponent(k) < o2.getComponent(k))
-                        return -1;
+                    if(o1.getComponent(k) > o2.getComponent(k)) {
+                        return_v = itemLabels[k]==ItemLabel.WEIGHT ? -1 : 1;
+                        return return_v;
+                    }
+                    if(o1.getComponent(k) < o2.getComponent(k)) {
+                        return_v = itemLabels[k]==ItemLabel.WEIGHT ? 1 : -1;
+                        return return_v;
+                    }
 
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                return 0;
+                return return_v;
             }
         });
     }

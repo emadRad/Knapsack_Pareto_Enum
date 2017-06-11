@@ -11,14 +11,16 @@ public class MaximaCompute {
 
     Partition partition;
     int partition_component;
+
     Vector maxVector_comp0;
     Vector minVector_comp0;
+
     ItemLabel [] itemLabels;
 
 
     public MaximaCompute(List<Item> arr, int pc, Vector min, Vector max, ItemLabel [] il){
         partition_component = pc;
-        partition = new Partition(arr,partition_component);
+        partition = new Partition(arr,partition_component,il);
         maxVector_comp0 = max;
         minVector_comp0 = min;
         itemLabels = il;
@@ -90,13 +92,13 @@ public class MaximaCompute {
 
             // storing the labeling from upper dimension
             for(Item item : vectors.subList(0,median_index+1) ) {
-                    vectors_label.put(item, labels.get(item));
-                    first_sublist.add(item);
+                vectors_label.put(item, labels.get(item));
+                first_sublist.add(item);
             }
 
             for(Item item : vectors.subList(median_index+1,vectors.size()) ) {
-                    vectors_label.put(item, labels.get(item));
-                    second_sublist.add(item);
+                vectors_label.put(item, labels.get(item));
+                second_sublist.add(item);
             }
 
 
@@ -285,13 +287,27 @@ public class MaximaCompute {
 
 
     //checks if the first vector dominates the second one or not
+    /*
+    * if first dominates second => true
+    * else false
+    * */
     public boolean dominates(Item first, Item second, int dimension) throws Exception {
         int equal_comp_num=0;
+
         for (int d=0;d<dimension;d++) {
-            if ( first.getVector().getComponent(d) < second.getVector().getComponent(d) )
-                return false;
-            else if ( first.getVector().getComponent(d) == second.getVector().getComponent(d) ){
+            if ( first.getVector().getComponent(d) == second.getVector().getComponent(d) ){
                 equal_comp_num++;
+            }
+            else {
+                if(itemLabels[d]==ItemLabel.PROFIT) {
+                    if (first.getVector().getComponent(d) < second.getVector().getComponent(d))
+                        return false;
+                }
+                else if(itemLabels[d]==ItemLabel.WEIGHT){
+                    if (first.getVector().getComponent(d) > second.getVector().getComponent(d))
+                        return false;
+
+                }
             }
         }
         if(equal_comp_num==dimension) {
@@ -331,7 +347,7 @@ public class MaximaCompute {
             curr_item.getVector().setDominated(false);
 
             compareTo = curr_item.getVector().compareTo(maxVector_sublist);
-            if (  compareTo == 1 ){ //
+            if ( compareTo == 1 ){ //
                 maxVector_sublist = curr_item.getVector();
                 startNode_index = i;
             }
@@ -339,24 +355,24 @@ public class MaximaCompute {
                 // when two vector are equal it is needed to check
                 // whether the maxVector_sublist points to the curr_item or the other way around
                 if ( compareTo == 0 ){
-                        if ( curr_item.getVector().getRank() > maxVector_sublist.getRank()  ){
-                            maxVector_sublist = curr_item.getVector();
-                            startNode_index = i;
-                        }
+                    if ( curr_item.getVector().getRank() > maxVector_sublist.getRank()  ){
+                        maxVector_sublist = curr_item.getVector();
+                        startNode_index = i;
+                    }
                 }
 
             }
-           compareTo =  curr_item.getVector().compareTo(minVector_sublist);
+            compareTo =  curr_item.getVector().compareTo(minVector_sublist);
             if ( compareTo == -1 ) {
                 minVector_sublist = curr_item.getVector();
                 endNode_index = i;
             }
             else if( compareTo == 0 ){
                 if ( curr_item.getVector().getRank() < minVector_sublist.getRank()  ){
-                        minVector_sublist = curr_item.getVector();
-                        endNode_index = i;
+                    minVector_sublist = curr_item.getVector();
+                    endNode_index = i;
 
-                    }
+                }
             }
         }
 
@@ -371,7 +387,11 @@ public class MaximaCompute {
 
 
         // the current maximum value of the component 1(y) of the points with label B
-        double current_max_1_B = -1 * Double.MAX_VALUE;
+        // if component 1 is weight we need to find the minimum
+        double current_max_1_B = Double.MAX_VALUE;
+
+        if(itemLabels[1]==ItemLabel.PROFIT)
+            current_max_1_B = -1 * current_max_1_B;
 
 
         Label vector_label=null;
@@ -381,7 +401,7 @@ public class MaximaCompute {
         Label upper_vector_label=null;
         Label curr_maxVector_upper_label =null;
 
-         Item max_vector_B = null;
+        Item max_vector_B = null;
 
 
         while(curr_item != endItem && curr_item !=null){
@@ -389,6 +409,8 @@ public class MaximaCompute {
                 vector = curr_item.getVector();
                 vector_label =  labels.get(curr_item);
 
+                // if there is not any labeling from upper dimension( in the case input with d=3)
+                // set the upper label equal to the label of current dimension
                 upper_vector_label = curr_item.getLabel()!=Label.NULL ? curr_item.getLabel() : vector_label;
 
 
@@ -396,51 +418,61 @@ public class MaximaCompute {
 //                vector.print();
 
                 if(vector_label==Label.B){
-                    if(curr_item.getVector().getComponent(1) > current_max_1_B && upper_vector_label == Label.B ) {
-                        max_vector_B = curr_item;
-                        curr_maxVector_upper_label = curr_item.getLabel()!=Label.NULL ? curr_item.getLabel() : vector_label;
-                        current_max_1_B = curr_item.getVector().getComponent(1);
+                    if(itemLabels[1]==ItemLabel.PROFIT) {
+                        if (curr_item.getVector().getComponent(1) > current_max_1_B && upper_vector_label == Label.B) {
+                            max_vector_B = curr_item;
+                            curr_maxVector_upper_label = curr_item.getLabel() != Label.NULL ? curr_item.getLabel() : vector_label;
+                            current_max_1_B = curr_item.getVector().getComponent(1);
+                        }
                     }
-
+                    else if (itemLabels[1]==ItemLabel.WEIGHT){
+                        if (curr_item.getVector().getComponent(1) < current_max_1_B && upper_vector_label == Label.B) {
+                            max_vector_B = curr_item;
+                            curr_maxVector_upper_label = curr_item.getLabel() != Label.NULL ? curr_item.getLabel() : vector_label;
+                            current_max_1_B = curr_item.getVector().getComponent(1);
+                        }
+                    }
                 }
 
                 if(vector_label==Label.A){
 
-                /*  A 9994.0    -9220.0    -1293.0
-                    B 9994.0    -3421.0    5877.0
-                    B 8517.0    9998.0    3052.0
-                    when a vector with label A is at the beginning of sorted sublist
-                    */
                     if(upper_vector_label == Label.A && curr_maxVector_upper_label == Label.B) {
-                        if (vector.getComponent(1) < current_max_1_B) {
-                            vector.setDominated(true);
-
-//                            System.out.print("Del_norm ");
-//                            vector.print();
-
-                        } else {
-                            if (vector.getComponent(1) == current_max_1_B) {
-                                if (partialCompare(max_vector_B.getVector(), curr_item.getVector(), 3) != 0) {
-                                    if (dominates(max_vector_B, curr_item, 3)) {
-                                        vector.setDominated(true);
+                        if (vector.getComponent(1) == current_max_1_B) {
+                            if (partialCompare(max_vector_B.getVector(), curr_item.getVector(), 3) != 0) {
+                                if (dominates(max_vector_B, curr_item, 3)) {
+                                    vector.setDominated(true);
 
 /*                                        System.out.println("Del_norm ");
                                         max_vector_B.vector.print();
                                         vector.print();
                                         System.out.println();*/
 
-                                    }
                                 }
-/*
-                                8.0    14.0    -6.0    -4.0
-                                8.0    14.0    -6.0    -4.0
-                                */
-                                else{
-                                    if (dominates(max_vector_B, curr_item, curr_item.getVector().getDimension())) {
-                                        vector.setDominated(true);
+                            }
+                            else {
+                                if (dominates(max_vector_B, curr_item, curr_item.getVector().getDimension())) {
+                                    vector.setDominated(true);
 //                                        System.out.print("Del_norm ");
 //                                        vector.print();
-                                    }
+                                }
+                            }
+                        }
+                        else {
+                            if(itemLabels[1]==ItemLabel.PROFIT) {
+                                if (vector.getComponent(1) < current_max_1_B) {
+                                    vector.setDominated(true);
+
+//                            System.out.print("Del_norm ");
+//                            vector.print();
+
+                                }
+                            }
+                            else if (itemLabels[1]==ItemLabel.WEIGHT){
+                                if (vector.getComponent(1) > current_max_1_B) {
+                                    vector.setDominated(true);
+
+//                            System.out.print("Del_norm ");
+//                            vector.print();
 
                                 }
                             }
@@ -501,24 +533,29 @@ public class MaximaCompute {
         return maximals;
     }
 
-/*
-     compare two vector up to the dimension d
-     output:
-        if v1 > v2 return 1
-        if v2 > v1 return -1
-        if v1 = v2 return 0
-    */
+    /*
+         compare two vector up to the dimension d
+         output:
+            if v1 > v2 return (1 OR -1 if it is weight)
+            if v2 > v1 return (-1 OR 1 if it is weight)
+            if v1 = v2 return 0
+        */
     private int partialCompare(Vector v1, Vector v2, int d) throws Exception {
         int k = 0;
+        int return_v=0;
         while (k < d && v1.getComponent(k) == v2.getComponent(k))
             k++;
         if ( k == d )
             return 0;
         else {
-            if (v1.getComponent(k) > v2.getComponent(k))
-                return 1;
-            if (v1.getComponent(k) < v2.getComponent(k))
-                return -1;
+            if (v1.getComponent(k) > v2.getComponent(k)) {
+                return_v = itemLabels[k]==ItemLabel.WEIGHT ? -1 : 1;
+                return return_v;
+            }
+            if (v1.getComponent(k) < v2.getComponent(k)){
+                return_v = itemLabels[k]==ItemLabel.WEIGHT ? 1 : -1;
+                return return_v;
+            }
         }
         return 0;
     }
@@ -552,6 +589,36 @@ public class MaximaCompute {
         }
         return maximals;
     }
+
+
+    public boolean isCorrect(List<Item> vectors) throws Exception {
+
+        Item toCheck;
+        int dim;
+        if(vectors.size()>0)
+            dim = vectors.get(0).getVector().getDimension();
+        else
+            return true;
+
+        for (int i=0;i<vectors.size();i++) {
+            toCheck = vectors.get(i);
+            for (int j = 0; j < vectors.size(); j++) {
+                if(dominates(toCheck,vectors.get(j),dim)){
+                    System.out.println("It is not correct!!");
+                    toCheck.getVector().print();
+                    vectors.get(j).getVector().print();
+                    return false;
+                }
+            }
+        }
+        return true;
+//        if(!correct)
+//            System.out.println("It is not correct");
+//        else
+//            System.out.println("It is correct.");
+
+    }
+
 
 
 }

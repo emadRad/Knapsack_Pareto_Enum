@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="knapsack_nu" default="jar" basedir="." >
+
+	<!-- global properties= variables -->
+	<property name="source.dir" location="NU_Alg"/>
+	<property name="build.dir" location="bin" />
+	<property name="testing.dir" location="testing" />
+	
+
+	<target name="init" description="setup project directories">
+		<mkdir dir="${build.dir}/classes" />
+	</target>
+
+	<target name="compile" depends="init" description="compile java sources">
+		<echo> Compiling ... </echo>
+		<javac srcdir="${source.dir}" destdir="${build.dir}/classes" />
+	</target>
+
+	<target name="jar" depends="compile" description="make jar file" >
+		<jar destfile="./knapsack_nu.jar" basedir="${build.dir}/classes">
+			<manifest>
+      				<!-- Who is building this jar? -->
+      				<attribute name="Built-By" value="Emad"/>
+				<attribute name="Main-Class" value="NU_Alg.Main" />	
+      				<!-- Information about the program itself -->
+      				<attribute name="Implementation-Title" value="Knapsack NU"/>
+      				<attribute name="Implementation-Version" value="1.0.0"/>
+    			</manifest>
+    		</jar>
+		<copy file="./knapsack_nu.jar" todir="${testing.dir}" />
+	</target>
+
+	 <!--[> Delete the build & doc directories  <]-->
+	 <target name="clean" description="tidy up the workspace">
+		 <delete dir="${build.dir}/classes" />
+	 </target> 
+
+	 <target name="inputDel" description="delete the generated inputs" >
+		 <echo> Input files in "${testing.dir}/Inputs" are deleted </echo>
+		 <delete>
+			 <fileset dir="${testing.dir}/Inputs" casesensitive="yes">
+			 	<include name="*.dat"/>
+			 </fileset>	 
+		</delete>
+	 </target>
+
+</project>

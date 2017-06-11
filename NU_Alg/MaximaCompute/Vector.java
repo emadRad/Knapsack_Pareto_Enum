@@ -1,5 +1,7 @@
 package NU_Alg.MaximaCompute;
 
+import NU_Alg.NU_Core.ItemLabel;
+
 public class Vector implements Comparable<Vector> {
 
     // dimension of the vector
@@ -8,6 +10,8 @@ public class Vector implements Comparable<Vector> {
     private double [] list;
 
     private int sortComponent;
+
+    static ItemLabel [] componentLabels;
 
     private boolean DOMINATED;
 
@@ -26,6 +30,7 @@ public class Vector implements Comparable<Vector> {
         this.rank = 0;
     }
 
+    public void setComponentLabels(ItemLabel [] il) { componentLabels= il;}
 
     public boolean isDominated(){return DOMINATED;}
     public void setDominated(boolean d){ this.DOMINATED=d;}
@@ -94,15 +99,20 @@ public class Vector implements Comparable<Vector> {
             System.exit(0);
         }
         int k = 0;
+        int return_v=0;
         try {
             while (k < this.getDimension() && this.getComponent(k) == v2.getComponent(k))
                 k++;
             if (k == this.getDimension())
                 return 0;
-            if (this.getComponent(k) > v2.getComponent(k))
-                return 1;
-            if (this.getComponent(k) < v2.getComponent(k))
-                return -1;
+            if (this.getComponent(k) > v2.getComponent(k)) {
+                return_v = componentLabels[k]==ItemLabel.WEIGHT ? -1 : 1;
+                return return_v;
+            }
+            if (this.getComponent(k) < v2.getComponent(k)) {
+                return_v = componentLabels[k]==ItemLabel.WEIGHT ? 1 : -1;
+                return return_v;
+            }
 
 
         } catch (Exception e) {
