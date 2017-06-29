@@ -206,7 +206,7 @@ public class MaximaCompute {
     /*
     * Utility function to update the linked list by deleting dominated vectors
     * */
-    public void updateLinkedList(Item item){
+    private void updateLinkedList(Item item){
         if(item.getPrevious()!=null)
             item.getPrevious().setNext(item.getNext());
         else if (item.getPrevious()==null && item.getNext()!=null)
@@ -258,7 +258,6 @@ public class MaximaCompute {
             }
 
 
-
             first_sublist = find_maxima_base3(first_sublist);
             second_sublist = find_maxima_base3(second_sublist);
 
@@ -270,6 +269,7 @@ public class MaximaCompute {
 
             merged_list.addAll(first_sublist);
             merged_list.addAll(second_sublist);
+
 
             if (merged_list.size()<=1) {
                 if (first_sublist.size() == 1) {
@@ -341,7 +341,7 @@ public class MaximaCompute {
         for(int i=0;i<vectors.size();i++) {
             curr_item = vectors.get(i);
 
-//            curr_item.vector.print();
+//            System.out.println(curr_item);
 
             curr_item.setACTIVE(true);
             curr_item.getVector().setDominated(false);
@@ -359,9 +359,15 @@ public class MaximaCompute {
                         maxVector_sublist = curr_item.getVector();
                         startNode_index = i;
                     }
+                    else if(curr_item.getVector().getRank() == maxVector_sublist.getRank()){
+                        maxVector_sublist = curr_item.getVector();
+                        startNode_index = i;
+                    }
                 }
 
             }
+
+
             compareTo =  curr_item.getVector().compareTo(minVector_sublist);
             if ( compareTo == -1 ) {
                 minVector_sublist = curr_item.getVector();
@@ -372,6 +378,10 @@ public class MaximaCompute {
                     minVector_sublist = curr_item.getVector();
                     endNode_index = i;
 
+                }
+                else if (curr_item.getVector().getRank() < minVector_sublist.getRank()){
+                    minVector_sublist = curr_item.getVector();
+                    endNode_index = i;
                 }
             }
         }

@@ -1,8 +1,7 @@
 package NU_Alg;
 import NU_Alg.MaximaCompute.Vector;
 import NU_Alg.MaximaCompute.*;
-import NU_Alg.NU_Core.Item;
-import NU_Alg.NU_Core.ItemLabel;
+import NU_Alg.NU_Core.*;
 
 import java.util.*;
 
@@ -41,53 +40,17 @@ public class Main {
             }
             linked_array.add(node);
         }
+
         node.getVector().setComponentLabels(itemLabels);
 
-        // the max and min vectors in component 0
-        Vector  minVector_comp0 = linked_array.get(0).getVector();
-        Vector maxVector_comp0 = linked_array.get(linked_array.size()-1).getVector();
 
-
-        int dimension = vectors.get(0).getDimension();
-
-//        for(ItemLabel il : itemLabels)
-//            System.out.print(il+" ");
+        Collections.reverse(linked_array);
+//        System.out.println(linked_array);
 //        System.out.println();
-//        for(Item item: linked_array) {
-//            item.getVector().print();
-//        }
-//        System.out.println();
+        NU_Core nu_core = new NU_Core(linked_array,itemLabels);
+        nu_core.solve();
 
-
-        System.out.print(linked_array.size()+","+dimension);
-
-//        System.out.println(linked_array.size()+","+dimension);
-        List<Item> linked_array_1 =new ArrayList<>(linked_array);
-
-        int partition_component = dimension-1;
-
-
-        MaximaCompute mf = new MaximaCompute(linked_array,partition_component,minVector_comp0,maxVector_comp0,itemLabels);
-        List<Item> maximals=null;
-        long start = System.currentTimeMillis();
-        if(dimension>3)
-            //starting from last dimension,dimension-1 is the index for last dimension
-            maximals=mf.find_maxima(linked_array,dimension-1,labels);
-        else if (dimension==3) {
-            maximals = mf.find_maxima_base3(linked_array);
-        }
-
-        System.out.print(","+maximals.size()+"\n");
-
-
-        if(!mf.isCorrect(maximals)) {
-            System.out.println("Not correct");
-            System.exit(1);
-        }
-//        else
-//            System.out.println("It is correct");
-
-
+/*
         List<Item> maximals_1  = mf.maxima_naive(linked_array_1,dimension);
 
         if(!listEqualsNoOrder(maximals_1,maximals)) {
@@ -95,9 +58,9 @@ public class Main {
             System.out.println(maximals.size()+" "+maximals_1.size());
             System.exit(1);
         }
+*/
 
     }
-
 
 
     public static void main(String[] args) throws Exception {
@@ -124,7 +87,7 @@ public class Main {
    /*
    * Sorting vectors lexicographically
    * */
-    public void sortVectors(List<Vector> vectors, ItemLabel [] itemLabels){
+    private void sortVectors(List<Vector> vectors, ItemLabel [] itemLabels){
         Collections.sort(vectors, new Comparator<Vector>() {
             @Override
             public int compare(Vector o1, Vector o2) {

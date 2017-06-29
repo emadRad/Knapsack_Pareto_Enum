@@ -19,8 +19,8 @@ def stylePrint(a):
 
 # the interval for vector components
 # each component x is a integer from [startRange,endRange)
-startRange = -15
-endRange = 15
+startRange = 0
+endRange = 20
 
 
 

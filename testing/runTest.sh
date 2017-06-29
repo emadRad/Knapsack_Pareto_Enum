@@ -1,9 +1,13 @@
 #!/bin/bash
 
-dim=5
+dim=3
 
-(cd ..; ant) &&	
-(for ((i=11; i<=1000; i+=1 ))
+DATE=`date +%Y-%m-%d:%H:%M:%S`
+
+printf "\n$DATE\n" | tee -a testRun.log
+
+(cd ..; ant | tee -a testRun.log) &&	
+(for ((i=11; i<=2000; i+=1 ))
 do
 	python3 inputGen.py $i $dim
 	fileName=Inputs/input\_"$dim"d\_"$i"p.dat
@@ -13,12 +17,12 @@ do
 	STATUS="${?}"
 	if [ "${STATUS}" == 1 ]
 	then
-		printf "\nShell script is terminated!!\n"
-		echo $fileName
-		echo "Incorrect result"
+		printf "\nShell script is terminated!!\n" | tee -a  testRun.log
+		echo $fileName | tee -a testRun.log
+		echo "Incorrect result" | tee -a testRun.log
 		exit
 	fi
 
-	echo $fileName
+	echo $fileName | tee -a testRun.log
 
 done)

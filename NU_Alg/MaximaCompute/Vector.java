@@ -30,6 +30,14 @@ public class Vector implements Comparable<Vector> {
         this.rank = 0;
     }
 
+    public Vector(int dimension, double [] list){
+        this.dimension = dimension;
+        this.list = list;
+        sortComponent = 0;
+        DOMINATED = false;
+        this.rank = 0;
+    }
+
     public void setComponentLabels(ItemLabel [] il) { componentLabels= il;}
 
     public boolean isDominated(){return DOMINATED;}
@@ -70,6 +78,19 @@ public class Vector implements Comparable<Vector> {
         return dimension;
     }
 
+
+    @Override
+    public String toString(){
+        int length = list.length;
+        String str="( ";
+        if(length!=0)
+            for(int i=0;i<length;i++) {
+                str = str + list[i];
+                str += length-1==i ? "" : "   ";
+        }
+        str+=" )";
+        return str;
+    }
 
     public void print(){
         int length = list.length;
