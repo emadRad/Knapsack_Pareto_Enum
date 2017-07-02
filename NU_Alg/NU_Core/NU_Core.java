@@ -45,14 +45,16 @@ public class NU_Core {
 
         int partition_component = dimension-1;
 
+        System.out.print(items.size()+","+dimension);
+
         currParetoSet.add(items.remove(0));
-        LinkedList<Item> linkedList;
 
         Map<Item,Label> labels;
 
-        MaximaCompute maximaCompute;
+        MaximaCompute maximaCompute = new MaximaCompute(itemLabels);
 
-        System.out.print(items.size()+","+dimension);
+        int maxSize = -1;
+
         for(Item item: items){
             newItems = addItemToList(currParetoSet,item);
 
@@ -66,17 +68,42 @@ public class NU_Core {
             insertInPosition(item,unionSet);
 
             labels = new HashMap<>();
-            unionSet = init(unionSet,labels);
+            init(unionSet,labels);
+
+
+//            System.out.println(unionSet.size());
+
+/*            System.out.println("Union set");
+            for(Item i: unionSet) {
+//                i.getVector().print();
+                System.out.println(i+" "+i.getVector().getRank());
+//                System.out.println(i+" "+i.getLabel());
+            }
+            System.out.println();*/
+
+/*            System.out.println("Linked");
+            Item x = unionSet.get(0);
+            while(x!=null){
+                System.out.println(x);
+                x = x.getNext();
+
+            }
+            System.out.println();*/
+
+
+            if(unionSet.size()>maxSize)
+                maxSize=unionSet.size();
+
 
             // the max and min vectors in component 0
             Vector  minVector_comp0 = unionSet.get(unionSet.size()-1).getVector();
             Vector maxVector_comp0 = unionSet.get(0).getVector();
 
-//            System.out.println("UnionSet "+ unionSet);
+            List<Item> union_1 = new ArrayList<>(unionSet);
 
-
-
-            maximaCompute = new MaximaCompute(unionSet,partition_component,minVector_comp0,maxVector_comp0,itemLabels);
+            maximaCompute.setMaxVector_comp0(maxVector_comp0);
+            maximaCompute.setMinVector_comp0(minVector_comp0);
+//            maximaCompute = new MaximaCompute(unionSet,partition_component,minVector_comp0,maxVector_comp0,itemLabels);
             List<Item> maximals=null;
             long start = System.currentTimeMillis();
             if(dimension>3)
@@ -86,21 +113,54 @@ public class NU_Core {
                 maximals = maximaCompute.find_maxima_base3(unionSet);
             }
 
-//            System.out.println();
 
             if(!maximaCompute.isCorrect(maximals)) {
                 System.out.println("Not correct");
                 System.exit(1);
             }
         else {
+                List<Item> maximals_1  = maximaCompute.maxima_naive(union_1,dimension);
+
+                if(maximals.size()!=maximals_1.size() || !listEqualsNoOrder(maximals_1,maximals)) {
+                    System.out.println("Not equal with the result of naive");
+                    System.out.println(maximals.size()+" "+maximals_1.size());
+
+                    for (Item it : difference(maximals_1,maximals))
+                        System.out.println(it);
+
+
+                    System.exit(1);
+                }
+
                 //TODO use linked list and sort it in linear time
                 Collections.sort(maximals, Collections.reverseOrder());
+
 //                System.out.println("It is correct");
                 currParetoSet = maximals;
             }
         }
-        System.out.print(","+currParetoSet.size()+"\n");
+
+
+        System.out.print(","+currParetoSet.size()+","+ maxSize+"\n");
     }
+
+
+    public static <T> Set<T> difference(List<T> l1, List<T> l2) {
+        final Set<T> setA = new HashSet<>(l1);
+        final Set<T> setB = new HashSet<>(l2);
+        Set<T> tmp = new HashSet<T>(setA);
+        tmp.removeAll(setB);
+        return tmp;
+    }
+
+
+    public static <T> boolean listEqualsNoOrder(List<T> l1, List<T> l2) {
+        final Set<T> s1 = new HashSet<>(l1);
+        final Set<T> s2 = new HashSet<>(l2);
+
+        return s1.equals(s2);
+    }
+
 
     /**
      * Adds the {@code newItem } to the all elements of {@code list}
@@ -145,28 +205,32 @@ public class NU_Core {
      * some variables for items, and initialize label map
      * @param list
      * @param labels
-     * @return a new list with new items added to the linked list structure
-     *          embedded inside each item of the list
      *
      * */
-    public List<Item> init(List<Item> list, Map<Item,Label> labels){
-        Item item=null;
-        Item newItem;
+    public void init(List<Item> list, Map<Item,Label> labels){
+        Item item;
+        Item next=null;
+
+        //TODO newItem and newList aren't necessary
+        Item newItem=null;
         List<Item> newList = new ArrayList<>();
 
-        for(int i= 0 ; i<list.size() ; i++){
-            item = list.get(i);
-            newItem = new Item(item.getVector(),item);
-            newItem.getVector().setRank(i);
-            newItem.setLabel(Label.NULL);
-            labels.put(newItem,Label.NULL);
-            if(newItem.getNext()!=null){
-                newItem.getNext().setPrevious(newItem);
-            }
-            newList.add(newItem);
-        }
+        int listSize = list.size();
 
-        return newList;
+        //from smallest to biggest
+        for(int i = listSize-1 ; i>=0 ; i--){
+            item = list.get(i);
+//            newItem = new Item(item.getVector(),newItem);
+            item.setNext(next);
+            next = item;
+
+            item.getVector().setRank(listSize-i);
+            item.setLabel(Label.NULL);
+            labels.put(item,Label.NULL);
+            if(item.getNext()!=null){
+                item.getNext().setPrevious(item);
+            }
+        }
     }
 
 
@@ -185,17 +249,32 @@ public class NU_Core {
         Item item1;
         Item item2;
         List<Item> merged = new ArrayList<>();
+        int compareVal;
 
         while( i<size1 && j<size2 ){
             item1 = list1.get(i);
             item2 = list2.get(j);
-            if(item1.getVector().compareTo(item2.getVector())==1){
+
+            compareVal = item1.getVector().compareTo(item2.getVector());
+            if(compareVal==1){
                 merged.add(item1);
                 i++;
             }
             else{
-                merged.add(item2);
-                j++;
+                if(compareVal!=0){
+                    merged.add(item2);
+                    j++;
+                }
+                else {
+                    if(item1.getVector().getRank() > item2.getVector().getRank()){
+                        merged.add(item1);
+                        i++;
+                    }
+                    else{
+                        merged.add(item2);
+                        j++;
+                    }
+                }
             }
         }
         while(i<size1){

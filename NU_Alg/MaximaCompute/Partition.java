@@ -26,6 +26,8 @@ public class Partition {
     // the component of.getVector() according to which the partitioning is done
     private int partitionComponent;
 
+    public Partition(ItemLabel [] componentLabels){ this.componentLabels = componentLabels;}
+
     public Partition(List<Item> a, int partitionComponent, ItemLabel [] cl ){
         arr = a;
         this.partitionComponent = partitionComponent;
@@ -127,6 +129,7 @@ public class Partition {
             int rightOfSubArr;
             int newIndex;
             int median5;
+
 
             for(int i =left; i<right;i+=5 ){
                 rightOfSubArr = i+4;

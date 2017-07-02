@@ -10,17 +10,28 @@ import java.util.*;
 public class MaximaCompute {
 
     Partition partition;
-    int partition_component;
+    int partitionComponent;
 
     Vector maxVector_comp0;
     Vector minVector_comp0;
 
+    //TODO can be shared between needed classes
     ItemLabel [] itemLabels;
 
+    public MaximaCompute(ItemLabel [] itemLabels){
+        partition =new Partition(itemLabels);
+        this.itemLabels= itemLabels;
 
-    public MaximaCompute(List<Item> arr, int pc, Vector min, Vector max, ItemLabel [] il){
-        partition_component = pc;
-        partition = new Partition(arr,partition_component,il);
+    }
+
+    public void setPartitionComponent(int partitionComponent){this.partitionComponent = partitionComponent;}
+    public void setItemLabels(ItemLabel [] itemLabels){this.itemLabels = itemLabels;}
+    public void setMinVector_comp0(Vector minVect){ this.minVector_comp0 = minVect;}
+    public void setMaxVector_comp0(Vector maxVect){ this.maxVector_comp0 = maxVect;}
+
+    public MaximaCompute(List<Item> arr, int partitionComponent, Vector min, Vector max, ItemLabel [] il){
+        this.partitionComponent = partitionComponent;
+        partition = new Partition(arr,partitionComponent,il);
         maxVector_comp0 = max;
         minVector_comp0 = min;
         itemLabels = il;
@@ -36,7 +47,7 @@ public class MaximaCompute {
         }
         else{
             partition.setPartitionComponent(k);
-            partition_component = k;
+            partitionComponent = k;
             partition.setList(vectors);
 
             int median_position;
@@ -54,10 +65,31 @@ public class MaximaCompute {
             first_sublist =  vectors.subList(0, median_index+1);
             second_sublist = vectors.subList(median_index+1, vectors.size());
 
+//            System.out.println("Dim "+k);
+//            System.out.println("First ");
+//            for(Item item: first_sublist)
+//                System.out.println(item);
+//            System.out.println();
+////
+//            System.out.println("second ");
+//            for(Item item: second_sublist)
+//                System.out.println(item);
+//            System.out.println();
 
             first_sublist = find_maxima(first_sublist,k,labels);
             second_sublist = find_maxima(second_sublist,k,labels);
 
+/*            System.out.println("after ");
+            System.out.println("Dim "+k);
+            System.out.println("First ");
+            for(Item item: first_sublist)
+                System.out.println(item);
+            System.out.println();
+//
+            System.out.println("second ");
+            for(Item item: second_sublist)
+                System.out.println(item);
+            System.out.println();*/
 
             return solveLowerDim(first_sublist,second_sublist,labels,k);
         }
@@ -74,7 +106,7 @@ public class MaximaCompute {
         }
         else{
             partition.setPartitionComponent(k);
-            partition_component = k;
+            partitionComponent = k;
             partition.setList(vectors);
 
             int median_position;
@@ -116,6 +148,7 @@ public class MaximaCompute {
 
     public List<Item> solveLowerDim(List<Item> first_sublist, List<Item> second_sublist, Map<Item,Label> labels, int k ) throws Exception {
 
+
         List<Item> merged_list = new ArrayList<>();
         List<Item> maximals = new ArrayList<>();
 
@@ -136,15 +169,18 @@ public class MaximaCompute {
                     merged_list.add(item);
                     num_of_A++;
                 }
-                if (labels.get(item) == Label.B)
+                if (labels.get(item) == Label.B) {
                     maximals.add(item);
+                }
             }
         }
+
         for (Item item : second_sublist){
             if (labels.get(item)==Label.NULL) {
                 vectors_label.put(item,Label.B);
                 merged_list.add(item);
                 maximals.add(item);
+
                 num_of_B++;
             }
             else{
@@ -187,19 +223,23 @@ public class MaximaCompute {
         Item first = vectors.get(0);
         Item second = vectors.get(1);
 
+//        System.out.println("Base_k");
+//        System.out.println(first);
+//        System.out.println(second);
+//        System.out.println();
+
         if (dominates(first,second,first.getVector().getDimension())){
             maximals.add(first);
-            updateLinkedList(second);
+//            updateLinkedList(second);
         }
         else if (dominates(second,first,first.getVector().getDimension())){
             maximals.add(second);
-            updateLinkedList(first);
+//            updateLinkedList(first);
         }
         else{
             maximals.add(first);
             maximals.add(second);
         }
-
         return maximals;
     }
 
@@ -223,7 +263,7 @@ public class MaximaCompute {
         }
         else{
             partition.setPartitionComponent(2);
-            partition_component = 2;
+            partitionComponent = 2;
             partition.setList(vectors);
 
             int median_position;
@@ -243,6 +283,8 @@ public class MaximaCompute {
             Map<Item,Label> vectors_label;
 
             vectors_label = new HashMap<>();
+
+
 
             first_sublist = new ArrayList<>();
             second_sublist = new ArrayList<>();
@@ -265,19 +307,27 @@ public class MaximaCompute {
 
 
             maximals.addAll(second_sublist);
+
+
             List<Item> merged_list = new ArrayList<>();
 
             merged_list.addAll(first_sublist);
             merged_list.addAll(second_sublist);
 
+/*            System.out.println("First3");
+            for(Item it: first_sublist)
+                System.out.println(it);
+            System.out.println("Second3");
+            for(Item it : second_sublist)
+                System.out.println(it);
+            System.out.println();*/
 
-            if (merged_list.size()<=1) {
-                if (first_sublist.size() == 1) {
-                    maximals.addAll(first_sublist);
-                }
+            if (merged_list.size()<=2) {
+                maximals = marriage_base_k(merged_list);
             }
             else{
-                maximals.addAll(marriage(merged_list, median, vectors_label));
+                List<Item> tmp = marriage(merged_list, median, vectors_label);
+                maximals.addAll(tmp);
             }
 
             return maximals;
@@ -323,9 +373,9 @@ public class MaximaCompute {
         List<Item> maximals = new ArrayList<>();
 
 
-        if(vectors.size()==2)
+        if(vectors.size()==2) {
             return marriage_base_k(vectors);
-
+        }
 
         Vector maxVector_sublist = minVector_comp0 ;
         Vector minVector_sublist = maxVector_comp0;
@@ -337,11 +387,14 @@ public class MaximaCompute {
 
         int compareTo;
 
+        int c1=0;
+        int c2=0;
 
         for(int i=0;i<vectors.size();i++) {
             curr_item = vectors.get(i);
 
-//            System.out.println(curr_item);
+            c1++;
+//            System.out.println(curr_item+" "+curr_item.getVector().getRank());
 
             curr_item.setACTIVE(true);
             curr_item.getVector().setDominated(false);
@@ -367,7 +420,6 @@ public class MaximaCompute {
 
             }
 
-
             compareTo =  curr_item.getVector().compareTo(minVector_sublist);
             if ( compareTo == -1 ) {
                 minVector_sublist = curr_item.getVector();
@@ -379,17 +431,17 @@ public class MaximaCompute {
                     endNode_index = i;
 
                 }
-                else if (curr_item.getVector().getRank() < minVector_sublist.getRank()){
+                else if (curr_item.getVector().getRank() == minVector_sublist.getRank()){
                     minVector_sublist = curr_item.getVector();
                     endNode_index = i;
                 }
             }
+
         }
 
         curr_item = vectors.get(startNode_index) ;
         Item endItem = vectors.get(endNode_index);
         endItem = endItem.getNext();
-
 
 //        System.out.println("Marriage3");
 //        median.vector.print();
@@ -416,6 +468,7 @@ public class MaximaCompute {
 
         while(curr_item != endItem && curr_item !=null){
             if(curr_item.isACTIVE()) {
+                c2++;
                 vector = curr_item.getVector();
                 vector_label =  labels.get(curr_item);
 
@@ -499,6 +552,7 @@ public class MaximaCompute {
             curr_item = curr_item.getNext();
         }
 
+//        System.out.println(c1==c2);
 //        System.out.println();
 
         return maximals;
@@ -571,10 +625,13 @@ public class MaximaCompute {
     }
 
 
-    /*
+    /**
     * The naive algorithm O(k*n^2)
     *   k: dimension
     *   n: number of vectors
+    *   @param vectors a list of vectors
+    *   @param dim dimension of vector
+    *   @return list of maximal vectors
     * */
     public List<Item> maxima_naive(List<Item> vectors, int dim) throws Exception {
         List<Item> maximals = new ArrayList<>();
@@ -601,6 +658,37 @@ public class MaximaCompute {
     }
 
 
+
+    public List<Item> find_maxima_FLET(List<Item> vectors) throws Exception {
+
+        List<Item> maximals = new ArrayList<>();
+        maximals.add(vectors.get(0));
+        int j=0;
+        int dim = vectors.get(0).getVector().getDimension();
+
+        for (int i=1; i<vectors.size(); i++){
+            j=0;
+            while ( j < maximals.size() ){
+                if (dominates(maximals.get(j),vectors.get(i),dim)){
+//                    maximals.add(0,maximals.get(j));
+                    Collections.swap(maximals,0,j);
+                    j = maximals.size()+1;
+                }
+                else if (dominates(vectors.get(i),maximals.get(j),dim)){
+                    maximals.remove(j);
+                }
+                //incomparable
+                else{
+                    j++;
+                }
+            }
+            if ( j == maximals.size() )
+                maximals.add(vectors.get(i));
+        }
+        return maximals;
+    }
+
+
     public boolean isCorrect(List<Item> vectors) throws Exception {
 
         Item toCheck;
@@ -609,7 +697,7 @@ public class MaximaCompute {
             dim = vectors.get(0).getVector().getDimension();
         else
             return true;
-
+        
         for (int i=0;i<vectors.size();i++) {
             toCheck = vectors.get(i);
             for (int j = 0; j < vectors.size(); j++) {

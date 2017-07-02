@@ -44,21 +44,66 @@ public class Main {
         node.getVector().setComponentLabels(itemLabels);
 
 
-        Collections.reverse(linked_array);
+
 //        System.out.println(linked_array);
+//        for(ItemLabel il: itemLabels)
+//            System.out.print(il+" ");
 //        System.out.println();
+
+        Collections.reverse(linked_array);
         NU_Core nu_core = new NU_Core(linked_array,itemLabels);
         nu_core.solve();
 
-/*
-        List<Item> maximals_1  = mf.maxima_naive(linked_array_1,dimension);
 
-        if(!listEqualsNoOrder(maximals_1,maximals)) {
-            System.out.println("Not equal with the result of naive");
-            System.out.println(maximals.size()+" "+maximals_1.size());
+/*
+
+        int dimension = linked_array.get(0).getVector().getDimension();
+        int partition_component = dimension-1;
+
+
+
+        System.out.println(linked_array.size()+" "+dimension+" ");
+
+        Vector  minVector_comp0 =  linked_array.get(0).getVector();
+        Vector maxVector_comp0 = linked_array.get(linked_array.size()-1).getVector();
+
+
+        MaximaCompute maximaCompute = new MaximaCompute(linked_array,partition_component,minVector_comp0,maxVector_comp0,itemLabels);
+        List<Item> linked_array_1 = new ArrayList<>(linked_array);
+        List<Item> maximals=null;
+        long start = System.currentTimeMillis();
+        if(dimension>3)
+            //starting from last dimension,dimension-1 is the index for last dimension
+            maximals=maximaCompute.find_maxima(linked_array,dimension-1,labels);
+        else if (dimension==3) {
+            maximals = maximaCompute.find_maxima_base3(linked_array);
+        }
+
+
+        if(!maximaCompute.isCorrect(maximals)) {
+            System.out.println("Not correct");
+            System.exit(1);
+        }*/
+
+//        else {
+//                System.out.println("It is correct");
+//        }
+//            System.out.println();
+
+/*        List<Item> maximals_1  = maximaCompute.maxima_naive(linked_array_1,dimension);
+        List<Item> maximals_2  = maximaCompute.find_maxima_FLET(linked_array);
+
+        if(!maximaCompute.isCorrect(maximals_2)) {
+            System.out.println("Not correct");
             System.exit(1);
         }
-*/
+
+
+        if(!listEqualsNoOrder(maximals_1,maximals_2)) {
+            System.out.println("Not equal with the result of naive");
+            System.out.println(maximals_2.size()+" "+maximals_1.size());
+            System.exit(1);
+        }*/
 
     }
 
