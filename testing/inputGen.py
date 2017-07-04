@@ -20,7 +20,7 @@ def stylePrint(a):
 # the interval for vector components
 # each component x is a integer from [startRange,endRange)
 startRange = 0
-endRange = 20
+endRange = 1000000
 
 
 
@@ -37,8 +37,9 @@ if len(sys.argv)>2:
     input_size = int(sys.argv[1])
     dim = int(sys.argv[2])
 
-labels=["P"]
-labels.extend([rand.choice(["P","W"]) for i in range(dim-1)])
+labels=['P','W']
+labels.extend(["P" for i in range(dim-2)])
+# labels.extend([rand.choice(["P","W"]) for i in range(dim-2)])
 
 a = [rand.sample(range(startRange,endRange),dim) for i in range(input_size)]
 

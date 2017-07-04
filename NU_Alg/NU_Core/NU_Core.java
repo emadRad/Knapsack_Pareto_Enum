@@ -53,95 +53,105 @@ public class NU_Core {
 
         MaximaCompute maximaCompute = new MaximaCompute(itemLabels);
 
+        // the sum of sizes union set in each iteration
+        // it is used for computing the average
+        int sizeSum = 0;
+
         int maxSize = -1;
 
+        /*
+         The threshold according to which the algorithm will be changed
+         from FLET(Fast Linear Expected-Time) algorithm to
+         multi-dimensional divide and conquer(D&C) algorithm
+         after 50000 it is going to use D&C
+        */
+        int threshold = 50000;
+
+        // a timeout in millisecond to control the time
+        // 60 min
+        int timeout = 3600000;
+
+        long start = System.currentTimeMillis();
+
+        // the starting time of iteration
+        long iterStartTime;
+        long iterTime=0;
+
+        //for computing the average time of each iteration
+        long iterTimeSum=0;
+
+        //number of iteration
+        int iterNum=0;
+
         for(Item item: items){
+            iterNum++;
+
+            if(System.currentTimeMillis()-start > timeout) {
+                System.out.println("\nTimeout reached at iteration "+ iterNum);
+                System.out.print(","+(System.currentTimeMillis() - start)+","+iterTimeSum/iterNum);
+                System.out.print(","+currParetoSet.size()+","+ sizeSum/iterNum+","+maxSize+"\n");
+            }
+
+            iterStartTime = System.currentTimeMillis();
+
             newItems = addItemToList(currParetoSet,item);
-
-//            System.out.println(currParetoSet+"   "+newItems);
-
             unionSet = merge(currParetoSet,newItems);
-
 
             //TODO this function is not needed, since `item` is always
             // the smallest element among current element of unionSet
             insertInPosition(item,unionSet);
 
             labels = new HashMap<>();
-            init(unionSet,labels);
 
-
-//            System.out.println(unionSet.size());
-
-/*            System.out.println("Union set");
-            for(Item i: unionSet) {
-//                i.getVector().print();
-                System.out.println(i+" "+i.getVector().getRank());
-//                System.out.println(i+" "+i.getLabel());
-            }
-            System.out.println();*/
-
-/*            System.out.println("Linked");
-            Item x = unionSet.get(0);
-            while(x!=null){
-                System.out.println(x);
-                x = x.getNext();
-
-            }
-            System.out.println();*/
-
-
+            sizeSum += unionSet.size();
             if(unionSet.size()>maxSize)
-                maxSize=unionSet.size();
+                maxSize = unionSet.size();
 
+            List<Item> maximals = null;
 
-            // the max and min vectors in component 0
-            Vector  minVector_comp0 = unionSet.get(unionSet.size()-1).getVector();
-            Vector maxVector_comp0 = unionSet.get(0).getVector();
+            if(unionSet.size()>threshold) {
+                init(unionSet,labels);
 
-            List<Item> union_1 = new ArrayList<>(unionSet);
+                // the max and min vectors int this list
+                Vector minVector_comp0 = unionSet.get(unionSet.size() - 1).getVector();
+                Vector maxVector_comp0 = unionSet.get(0).getVector();
 
-            maximaCompute.setMaxVector_comp0(maxVector_comp0);
-            maximaCompute.setMinVector_comp0(minVector_comp0);
-//            maximaCompute = new MaximaCompute(unionSet,partition_component,minVector_comp0,maxVector_comp0,itemLabels);
-            List<Item> maximals=null;
-            long start = System.currentTimeMillis();
-            if(dimension>3)
-                //starting from last dimension,dimension-1 is the index for last dimension
-                maximals=maximaCompute.find_maxima(unionSet,dimension-1,labels);
-            else if (dimension==3) {
-                maximals = maximaCompute.find_maxima_base3(unionSet);
+                maximaCompute.setMaxVector_comp0(maxVector_comp0);
+                maximaCompute.setMinVector_comp0(minVector_comp0);
+
+                if (dimension > 3)
+                    //starting from last dimension,dimension-1 is the index for last dimension
+                    maximals = maximaCompute.find_maxima(unionSet, dimension - 1, labels);
+                else if (dimension == 3) {
+                    maximals = maximaCompute.find_maxima_base3(unionSet);
+                }
+                currParetoSet = findSortedOrder(maximals,maxVector_comp0,minVector_comp0);
+            }
+            else{
+                maximals = maximaCompute.find_maxima_FLET(unionSet);
+                currParetoSet = maximals;
+
+                // the size next unionSet would be at most 2*size of current pareto set
+                if(2 * currParetoSet.size() >= threshold)
+                    Collections.sort(currParetoSet,Collections.reverseOrder());
             }
 
+            iterTime = System.currentTimeMillis()-iterStartTime;
+            iterTimeSum += iterTime;
 
-            if(!maximaCompute.isCorrect(maximals)) {
+/*            if(!maximaCompute.isCorrect(maximals)) {
                 System.out.println("Not correct");
                 System.exit(1);
-            }
-        else {
-                List<Item> maximals_1  = maximaCompute.maxima_naive(union_1,dimension);
-
-                if(maximals.size()!=maximals_1.size() || !listEqualsNoOrder(maximals_1,maximals)) {
-                    System.out.println("Not equal with the result of naive");
-                    System.out.println(maximals.size()+" "+maximals_1.size());
-
-                    for (Item it : difference(maximals_1,maximals))
-                        System.out.println(it);
+            }*/
 
 
-                    System.exit(1);
-                }
-
-                //TODO use linked list and sort it in linear time
-                Collections.sort(maximals, Collections.reverseOrder());
-
-//                System.out.println("It is correct");
-                currParetoSet = maximals;
-            }
         }
 
+        long averageIterTime = iterTimeSum/items.size();
+        System.out.print(","+(System.currentTimeMillis() - start)+","+averageIterTime);
+        int averageSize = sizeSum/items.size();
 
-        System.out.print(","+currParetoSet.size()+","+ maxSize+"\n");
+        System.out.print(","+currParetoSet.size()+","+ averageSize+","+maxSize+"\n");
     }
 
 
@@ -159,6 +169,100 @@ public class NU_Core {
         final Set<T> s2 = new HashSet<>(l2);
 
         return s1.equals(s2);
+    }
+
+
+    /**
+     * Sorting the list according to sorted linked list embedded inside each item
+     * @param list
+     * @param maxVector the maximum vector in list
+     * @param minVector the minimum vector in list
+     * @return the sorted list in descending order
+     * */
+    public List<Item> findSortedOrder(List<Item> list, Vector maxVector, Vector minVector){
+
+        Item currItem;
+        int compareTo;
+        int startNode_index=0;
+        int endNode_index=0;
+        int c1=0;
+        int c2=0;
+        List<Item> newList = new ArrayList<>();
+
+
+        Vector tmp = maxVector;
+        maxVector = minVector;
+        minVector = tmp;
+
+        for(int i=0;i<list.size();i++) {
+            currItem = list.get(i);
+
+            c1++;
+
+            currItem.setACTIVE(true);
+
+            compareTo = currItem.getVector().compareTo(maxVector);
+            if ( compareTo == 1 ){ //
+                maxVector = currItem.getVector();
+                startNode_index = i;
+            }
+            else{
+                // when two vector are equal it is needed to check
+                // whether the maxVector_sublist points to the curr_item or the other way around
+                if ( compareTo == 0 ){
+                    if ( currItem.getVector().getRank() > maxVector.getRank()  ){
+                        maxVector = currItem.getVector();
+                        startNode_index = i;
+                    }
+                    else if(currItem.getVector().getRank() == maxVector.getRank()){
+                        maxVector = currItem.getVector();
+                        startNode_index = i;
+                    }
+                }
+
+            }
+
+            compareTo =  currItem.getVector().compareTo(minVector);
+            if ( compareTo == -1 ) {
+                minVector = currItem.getVector();
+                endNode_index = i;
+            }
+            else if( compareTo == 0 ){
+                if ( currItem.getVector().getRank() < minVector.getRank()  ){
+                    minVector = currItem.getVector();
+                    endNode_index = i;
+
+                }
+                else if (currItem.getVector().getRank() == minVector.getRank()){
+                    minVector = currItem.getVector();
+                    endNode_index = i;
+                }
+            }
+
+        }
+
+        currItem = list.get(startNode_index) ;
+        Item endItem = list.get(endNode_index);
+        endItem = endItem.getNext();
+
+
+        while(currItem != endItem && currItem != null){
+            if(currItem.isACTIVE()) {
+                c2++;
+                newList.add(currItem);
+            }
+            currItem.setACTIVE(false);
+            currItem = currItem.getNext();
+        }
+
+        if(c1!=c2){
+            System.err.println("Not equal");
+            System.exit(1);
+        }
+
+
+        return newList;
+
     }
 
 
@@ -201,8 +305,8 @@ public class NU_Core {
     }
 
     /**
-     * Create a linked list from the given list and also initialize
-     * some variables for items, and initialize label map
+     * Creates a linked list from the given list and also initializes
+     * some variables for items, and initializes the label map
      * @param list
      * @param labels
      *
@@ -211,16 +315,11 @@ public class NU_Core {
         Item item;
         Item next=null;
 
-        //TODO newItem and newList aren't necessary
-        Item newItem=null;
-        List<Item> newList = new ArrayList<>();
-
         int listSize = list.size();
 
         //from smallest to biggest
         for(int i = listSize-1 ; i>=0 ; i--){
             item = list.get(i);
-//            newItem = new Item(item.getVector(),newItem);
             item.setNext(next);
             next = item;
 
