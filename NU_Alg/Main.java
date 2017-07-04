@@ -133,6 +133,7 @@ public class Main {
    * Sorting vectors lexicographically
    * */
     private void sortVectors(List<Vector> vectors, ItemLabel [] itemLabels){
+        final ItemLabel [] itemLabel = itemLabels;
         Collections.sort(vectors, new Comparator<Vector>() {
             @Override
             public int compare(Vector o1, Vector o2) {
@@ -144,11 +145,11 @@ public class Main {
                     if( k==o1.getDimension() )
                         return 0;
                     if(o1.getComponent(k) > o2.getComponent(k)) {
-                        return_v = itemLabels[k]==ItemLabel.WEIGHT ? -1 : 1;
+                        return_v = itemLabel[k]==ItemLabel.WEIGHT ? -1 : 1;
                         return return_v;
                     }
                     if(o1.getComponent(k) < o2.getComponent(k)) {
-                        return_v = itemLabels[k]==ItemLabel.WEIGHT ? 1 : -1;
+                        return_v = itemLabel[k]==ItemLabel.WEIGHT ? 1 : -1;
                         return return_v;
                     }
 

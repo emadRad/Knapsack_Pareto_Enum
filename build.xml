@@ -7,10 +7,12 @@
 	<property name="build.dir" location="bin" />
 	<property name="testing.dir" location="testing" />
 	<property name="docs.dir" location="docs" />
+	<property name="java7.build" location="bin/java7" />
 	
 
 	<target name="init" description="setup project directories">
 		<mkdir dir="${build.dir}/classes" />
+		<mkdir dir="${build.dir}/java7/classes" />
 		<mkdir dir="${testing.dir}/Inputs" />
 		<mkdir dir="${docs.dir}/" />
 		<mkdir dir="${testing.dir}/Inputs/default" />
@@ -24,19 +26,28 @@
 
 	<target name="compile" depends="init" description="compile java sources">
 		<echo> Compiling ... </echo>
-		<javac srcdir="${source.dir}" destdir="${build.dir}/classes" />
+		<javac srcdir="${source.dir}" destdir="${build.dir}/classes"  />
+		<javac srcdir="${source.dir}" destdir="${java7.build}/classes" target="1.7" source="1.7" />
 	</target>
 
-	<target name="jar" depends="compile" description="make jar file" >
-		<jar destfile="./knapsack_nu.jar" basedir="${build.dir}/classes">
+	<target name="jar" depends="compile" description="making jar file" >
+		<jar destfile="./knapsack_nu.jar">
 			<manifest>
       				<!-- Who is building this jar? -->
       				<attribute name="Built-By" value="Emad"/>
-				<attribute name="Main-Class" value="NU_Alg.Main" />	
+							<attribute name="Multi-Release" value="true"/>
+							<attribute name="Main-Class" value="NU_Alg.Main" />	
       				<!-- Information about the program itself -->
       				<attribute name="Implementation-Title" value="Knapsack NU"/>
       				<attribute name="Implementation-Version" value="1.0.0"/>
     			</manifest>
+					
+					<!-- directory structure according to the spec ... -->
+      		<!-- ... default classes loadable by old (<Java8) versions -->
+      		<fileset dir="${java7.build}/classes"/>
+      		<!-- ... per release classes, require Java8 for loadable via standard ClassLoader -->
+      		<zipfileset prefix="META-INF/versions/8/" dir="${build.dir}/classes"/>
+
     		</jar>
 		<copy file="./knapsack_nu.jar" todir="${testing.dir}" />
 	</target>
