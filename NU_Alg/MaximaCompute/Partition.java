@@ -144,7 +144,6 @@ public class Partition {
 
             }
             return select(left,left+(int)Math.ceil((right-left)/5)-1, left+ (int)(Math.floor(right-left)/10));
-//            return select(sublist,0,sublist.size()-1, (int)Math.floor(sublist.size()/2));
 
         }
     }

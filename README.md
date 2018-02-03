@@ -1,6 +1,6 @@
 # Nemhauser-Ullmann algorithm
 
-An implementation of the Nemhauser-Ullmann algorithm for multi-dimensional knapsack problem.
+An implementation of the Nemhauser-Ullmann algorithm for multidimensional knapsack problem.
 
 
 #### Requirement

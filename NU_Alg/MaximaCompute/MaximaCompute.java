@@ -65,31 +65,10 @@ public class MaximaCompute {
             first_sublist =  vectors.subList(0, median_index+1);
             second_sublist = vectors.subList(median_index+1, vectors.size());
 
-//            System.out.println("Dim "+k);
-//            System.out.println("First ");
-//            for(Item item: first_sublist)
-//                System.out.println(item);
-//            System.out.println();
-////
-//            System.out.println("second ");
-//            for(Item item: second_sublist)
-//                System.out.println(item);
-//            System.out.println();
 
             first_sublist = find_maxima(first_sublist,k,labels);
             second_sublist = find_maxima(second_sublist,k,labels);
 
-/*            System.out.println("after ");
-            System.out.println("Dim "+k);
-            System.out.println("First ");
-            for(Item item: first_sublist)
-                System.out.println(item);
-            System.out.println();
-//
-            System.out.println("second ");
-            for(Item item: second_sublist)
-                System.out.println(item);
-            System.out.println();*/
 
             return solveLowerDim(first_sublist,second_sublist,labels,k);
         }
@@ -223,18 +202,12 @@ public class MaximaCompute {
         Item first = vectors.get(0);
         Item second = vectors.get(1);
 
-//        System.out.println("Base_k");
-//        System.out.println(first);
-//        System.out.println(second);
-//        System.out.println();
 
         if (dominates(first,second,first.getVector().getDimension())){
             maximals.add(first);
-//            updateLinkedList(second);
         }
         else if (dominates(second,first,first.getVector().getDimension())){
             maximals.add(second);
-//            updateLinkedList(first);
         }
         else{
             maximals.add(first);
@@ -314,13 +287,6 @@ public class MaximaCompute {
             merged_list.addAll(first_sublist);
             merged_list.addAll(second_sublist);
 
-/*            System.out.println("First3");
-            for(Item it: first_sublist)
-                System.out.println(it);
-            System.out.println("Second3");
-            for(Item it : second_sublist)
-                System.out.println(it);
-            System.out.println();*/
 
             if (merged_list.size()<=2) {
                 maximals = marriage_base_k(merged_list);
@@ -443,10 +409,6 @@ public class MaximaCompute {
         Item endItem = vectors.get(endNode_index);
         endItem = endItem.getNext();
 
-//        System.out.println("Marriage3");
-//        median.vector.print();
-//        System.out.println("Med "+ median_value );
-
 
         // the current maximum value of the component 1(y) of the points with label B
         // if component 1 is weight we need to find the minimum
@@ -477,9 +439,6 @@ public class MaximaCompute {
                 upper_vector_label = curr_item.getLabel()!=Label.NULL ? curr_item.getLabel() : vector_label;
 
 
-//                System.out.print(vector_label+" "+upper_vector_label+" ");
-//                vector.print();
-
                 if(vector_label==Label.B){
                     if(itemLabels[1]==ItemLabel.PROFIT) {
                         if (curr_item.getVector().getComponent(1) > current_max_1_B && upper_vector_label == Label.B) {
@@ -504,19 +463,11 @@ public class MaximaCompute {
                             if (partialCompare(max_vector_B.getVector(), curr_item.getVector(), 3) != 0) {
                                 if (dominates(max_vector_B, curr_item, 3)) {
                                     vector.setDominated(true);
-
-/*                                        System.out.println("Del_norm ");
-                                        max_vector_B.vector.print();
-                                        vector.print();
-                                        System.out.println();*/
-
                                 }
                             }
                             else {
                                 if (dominates(max_vector_B, curr_item, curr_item.getVector().getDimension())) {
                                     vector.setDominated(true);
-//                                        System.out.print("Del_norm ");
-//                                        vector.print();
                                 }
                             }
                         }
@@ -524,18 +475,11 @@ public class MaximaCompute {
                             if(itemLabels[1]==ItemLabel.PROFIT) {
                                 if (vector.getComponent(1) < current_max_1_B) {
                                     vector.setDominated(true);
-
-//                            System.out.print("Del_norm ");
-//                            vector.print();
-
                                 }
                             }
                             else if (itemLabels[1]==ItemLabel.WEIGHT){
                                 if (vector.getComponent(1) > current_max_1_B) {
                                     vector.setDominated(true);
-
-//                            System.out.print("Del_norm ");
-//                            vector.print();
 
                                 }
                             }
@@ -552,9 +496,6 @@ public class MaximaCompute {
             curr_item = curr_item.getNext();
         }
 
-//        System.out.println(c1==c2);
-//        System.out.println();
-
         return maximals;
     }
 
@@ -569,24 +510,11 @@ public class MaximaCompute {
         boolean first_dominated = false;
         boolean second_dominated = false;
 
-/*        System.out.println("Base_of 3");
-        System.out.print(first_vector_label+" ");
-        first.vector.print();
-        System.out.print(second_vector_label+" ");
-        second.vector.print();
-        System.out.println();*/
-
         if(dominates(second,first,3)) {
             first_dominated = true;
-
-//                System.out.print("del_3_2 ");
-//                first.vector.print();
         }
         else if(dominates(first,second,3)) {
             second_dominated = true;
-
-//                System.out.print("del_3_2 ");
-//                second.vector.print();
         }
 
         if (! first_dominated)
@@ -710,13 +638,6 @@ public class MaximaCompute {
             }
         }
         return true;
-//        if(!correct)
-//            System.out.println("It is not correct");
-//        else
-//            System.out.println("It is correct.");
 
     }
-
-
-
 }

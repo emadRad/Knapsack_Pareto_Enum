@@ -139,12 +139,6 @@ public class NU_Core {
             iterTime = System.currentTimeMillis()-iterStartTime;
             iterTimeSum += iterTime;
 
-/*            if(!maximaCompute.isCorrect(maximals)) {
-                System.out.println("Not correct");
-                System.exit(1);
-            }*/
-
-
         }
 
         long averageIterTime = iterTimeSum/items.size();
