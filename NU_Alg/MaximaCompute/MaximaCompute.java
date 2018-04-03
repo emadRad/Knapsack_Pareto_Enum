@@ -1,7 +1,8 @@
 package NU_Alg.MaximaCompute;
 import NU_Alg.NU_Core.Item;
 import NU_Alg.NU_Core.ItemLabel;
-
+import NU_Alg.MaximaCompute.Comparison
+        ;
 import java.util.*;
 
 /**
@@ -18,9 +19,12 @@ public class MaximaCompute {
     //TODO can be shared between needed classes
     ItemLabel [] itemLabels;
 
+    Comparison compare;
+
     public MaximaCompute(ItemLabel [] itemLabels){
         partition =new Partition(itemLabels);
         this.itemLabels= itemLabels;
+        compare = new Comparison(itemLabels);
 
     }
 
@@ -35,6 +39,7 @@ public class MaximaCompute {
         maxVector_comp0 = max;
         minVector_comp0 = min;
         itemLabels = il;
+        compare = new Comparison(itemLabels);
     }
 
 
@@ -203,10 +208,10 @@ public class MaximaCompute {
         Item second = vectors.get(1);
 
 
-        if (dominates(first,second,first.getVector().getDimension())){
+        if (compare.dominates(first,second,first.getVector().getDimension())){
             maximals.add(first);
         }
-        else if (dominates(second,first,first.getVector().getDimension())){
+        else if (compare.dominates(second,first,first.getVector().getDimension())){
             maximals.add(second);
         }
         else{
@@ -300,38 +305,6 @@ public class MaximaCompute {
 
         }
     }
-
-
-    //checks if the first vector dominates the second one or not
-    /*
-    * if first dominates second => true
-    * else false
-    * */
-    public boolean dominates(Item first, Item second, int dimension) throws Exception {
-        int equal_comp_num=0;
-
-        for (int d=0;d<dimension;d++) {
-            if ( first.getVector().getComponent(d) == second.getVector().getComponent(d) ){
-                equal_comp_num++;
-            }
-            else {
-                if(itemLabels[d]==ItemLabel.PROFIT) {
-                    if (first.getVector().getComponent(d) < second.getVector().getComponent(d))
-                        return false;
-                }
-                else if(itemLabels[d]==ItemLabel.WEIGHT){
-                    if (first.getVector().getComponent(d) > second.getVector().getComponent(d))
-                        return false;
-
-                }
-            }
-        }
-        if(equal_comp_num==dimension) {
-            return false;
-        }
-        return true;
-    }
-
 
 
     public List<Item> marriage(List<Item> vectors, Item median, Map<Item,Label> labels) throws Exception {
@@ -460,13 +433,13 @@ public class MaximaCompute {
 
                     if(upper_vector_label == Label.A && curr_maxVector_upper_label == Label.B) {
                         if (vector.getComponent(1) == current_max_1_B) {
-                            if (partialCompare(max_vector_B.getVector(), curr_item.getVector(), 3) != 0) {
-                                if (dominates(max_vector_B, curr_item, 3)) {
+                            if (compare.partialCompare(max_vector_B.getVector(), curr_item.getVector(), 3) != 0) {
+                                if (compare.dominates(max_vector_B, curr_item, 3)) {
                                     vector.setDominated(true);
                                 }
                             }
                             else {
-                                if (dominates(max_vector_B, curr_item, curr_item.getVector().getDimension())) {
+                                if (compare.dominates(max_vector_B, curr_item, curr_item.getVector().getDimension())) {
                                     vector.setDominated(true);
                                 }
                             }
@@ -510,10 +483,10 @@ public class MaximaCompute {
         boolean first_dominated = false;
         boolean second_dominated = false;
 
-        if(dominates(second,first,3)) {
+        if(compare.dominates(second,first,3)) {
             first_dominated = true;
         }
-        else if(dominates(first,second,3)) {
+        else if(compare.dominates(first,second,3)) {
             second_dominated = true;
         }
 
@@ -525,42 +498,42 @@ public class MaximaCompute {
         return maximals;
     }
 
-    /*
-         compare two vector up to the dimension d
-         output:
-            if v1 > v2 return (1 OR -1 if it is weight)
-            if v2 > v1 return (-1 OR 1 if it is weight)
-            if v1 = v2 return 0
-        */
-    private int partialCompare(Vector v1, Vector v2, int d) throws Exception {
-        int k = 0;
-        int return_v=0;
-        while (k < d && v1.getComponent(k) == v2.getComponent(k))
-            k++;
-        if ( k == d )
-            return 0;
-        else {
-            if (v1.getComponent(k) > v2.getComponent(k)) {
-                return_v = itemLabels[k]==ItemLabel.WEIGHT ? -1 : 1;
-                return return_v;
-            }
-            if (v1.getComponent(k) < v2.getComponent(k)){
-                return_v = itemLabels[k]==ItemLabel.WEIGHT ? 1 : -1;
-                return return_v;
+
+
+
+    public boolean isCorrect(List<Item> vectors) throws Exception {
+
+        Item toCheck;
+        int dim;
+        if(vectors.size()>0)
+            dim = vectors.get(0).getVector().getDimension();
+        else
+            return true;
+
+        for (int i=0;i<vectors.size();i++) {
+            toCheck = vectors.get(i);
+            for (int j = 0; j < vectors.size(); j++) {
+                if(compare.dominates(toCheck,vectors.get(j),dim)){
+                    System.out.println("It is not correct!!");
+                    toCheck.getVector().print();
+                    vectors.get(j).getVector().print();
+                    return false;
+                }
             }
         }
-        return 0;
+        return true;
+
     }
 
 
     /**
-    * The naive algorithm O(k*n^2)
-    *   k: dimension
-    *   n: number of vectors
-    *   @param vectors a list of vectors
-    *   @param dim dimension of vector
-    *   @return list of maximal vectors
-    * */
+     * The naive algorithm O(k*n^2)
+     *   k: dimension
+     *   n: number of vectors
+     *   @param vectors a list of vectors
+     *   @param dim dimension of vector
+     *   @return list of maximal vectors
+     * */
     public List<Item> maxima_naive(List<Item> vectors, int dim) throws Exception {
         List<Item> maximals = new ArrayList<>();
         int i=0;
@@ -571,7 +544,7 @@ public class MaximaCompute {
             notDominated= true;
             while (j<vectors.size()){
                 if (j!=i) {
-                    if (dominates(vectors.get(j), vectors.get(i),dim)) {
+                    if (compare.dominates(vectors.get(j), vectors.get(i),dim)) {
                         notDominated = false;
                         break;
                     }
@@ -585,59 +558,4 @@ public class MaximaCompute {
         return maximals;
     }
 
-
-
-    public List<Item> find_maxima_FLET(List<Item> vectors) throws Exception {
-
-        List<Item> maximals = new ArrayList<>();
-        maximals.add(vectors.get(0));
-        int j=0;
-        int dim = vectors.get(0).getVector().getDimension();
-
-        for (int i=1; i<vectors.size(); i++){
-            j=0;
-            while ( j < maximals.size() ){
-                if (dominates(maximals.get(j),vectors.get(i),dim)){
-//                    maximals.add(0,maximals.get(j));
-                    Collections.swap(maximals,0,j);
-                    j = maximals.size()+1;
-                }
-                else if (dominates(vectors.get(i),maximals.get(j),dim)){
-                    maximals.remove(j);
-                }
-                //incomparable
-                else{
-                    j++;
-                }
-            }
-            if ( j == maximals.size() )
-                maximals.add(vectors.get(i));
-        }
-        return maximals;
-    }
-
-
-    public boolean isCorrect(List<Item> vectors) throws Exception {
-
-        Item toCheck;
-        int dim;
-        if(vectors.size()>0)
-            dim = vectors.get(0).getVector().getDimension();
-        else
-            return true;
-        
-        for (int i=0;i<vectors.size();i++) {
-            toCheck = vectors.get(i);
-            for (int j = 0; j < vectors.size(); j++) {
-                if(dominates(toCheck,vectors.get(j),dim)){
-                    System.out.println("It is not correct!!");
-                    toCheck.getVector().print();
-                    vectors.get(j).getVector().print();
-                    return false;
-                }
-            }
-        }
-        return true;
-
-    }
 }

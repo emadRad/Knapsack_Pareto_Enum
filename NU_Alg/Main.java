@@ -10,7 +10,7 @@ public class Main {
     public void solve(String inputFileName) throws Exception {
 
         if(inputFileName.isEmpty())
-            inputFileName ="Inputs/default/input_4d_11p.dat";
+            inputFileName ="testing/Inputs/default/input_4d_11p.dat";
 
         ReadInput ri = new ReadInput(inputFileName);
 
@@ -58,17 +58,6 @@ public class Main {
             main.solve(args[0]);
         else
             main.solve("");
-    }
-
-
-
-
-
-     public static <T> boolean listEqualsNoOrder(List<T> l1, List<T> l2) {
-        final Set<T> s1 = new HashSet<>(l1);
-        final Set<T> s2 = new HashSet<>(l2);
-
-        return s1.equals(s2);
     }
 
 
