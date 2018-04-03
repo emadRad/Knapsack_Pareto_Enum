@@ -1,5 +1,6 @@
 package NU_Alg.NU_Core;
 
+import NU_Alg.MaximaCompute.FLET;
 import NU_Alg.MaximaCompute.Label;
 import NU_Alg.MaximaCompute.MaximaCompute;
 import NU_Alg.MaximaCompute.Vector;
@@ -27,7 +28,19 @@ public class NU_Core {
     * The main method that runs the Nemhauser-Ullmann algorithm
     *
    * */
-    public void solve()throws Exception{
+    public long [] solve()throws Exception{
+
+        /*
+        * 0 : TotalTime
+        * 1 : AvgIterTime, average time of each iteration
+        * 2 : AvgParetoSize, average size of paretoSize
+        * 3 : MaxParetoSize
+        * 4 : MinParetoSize
+        * 5 : AvgSize, average size each unionSet
+        * 6 : MaxSize, max size of unionSet
+        *
+        * */
+        long [] results = new long[7];
 
         /* currParetoSet : the pareto set computed from last iteration */
         List<Item> currParetoSet= new ArrayList<>();
@@ -39,25 +52,28 @@ public class NU_Core {
 
         int dimension;
         if(items.isEmpty())
-            return;
+            return results;
         else
             dimension = items.get(0).getVector().getDimension();
 
-        int partition_component = dimension-1;
-
-        System.out.print(items.size()+","+dimension);
 
         currParetoSet.add(items.remove(0));
 
         Map<Item,Label> labels;
 
         MaximaCompute maximaCompute = new MaximaCompute(itemLabels);
+        FLET flet = new FLET(itemLabels);
 
         // the sum of sizes union set in each iteration
         // it is used for computing the average
         int sizeSum = 0;
 
         int maxSize = -1;
+
+        int minParetoSize = Integer.MAX_VALUE;
+        int maxParetoSize=-1;
+        int paretoSizeSum = 0;
+
 
         /*
          The threshold according to which the algorithm will be changed
@@ -68,10 +84,10 @@ public class NU_Core {
         int threshold = 50000;
 
         // a timeout in millisecond to control the time
-        // 60 min
-        int timeout = 3600000;
+        // 6 hour
+//        int timeout = 21600000;
 
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
 
         // the starting time of iteration
         long iterStartTime;
@@ -80,19 +96,19 @@ public class NU_Core {
         //for computing the average time of each iteration
         long iterTimeSum=0;
 
-        //number of iteration
-        int iterNum=0;
+
+        long totalTime=0;
+
 
         for(Item item: items){
-            iterNum++;
 
-            if(System.currentTimeMillis()-start > timeout) {
+/*            if(System.nanoTime()-start > timeout) {
                 System.out.println("\nTimeout reached at iteration "+ iterNum);
-                System.out.print(","+(System.currentTimeMillis() - start)+","+iterTimeSum/iterNum);
+                System.out.print(","+(System.nanoTime() - start)+","+iterTimeSum/iterNum);
                 System.out.print(","+currParetoSet.size()+","+ sizeSum/iterNum+","+maxSize+"\n");
-            }
+            }*/
 
-            iterStartTime = System.currentTimeMillis();
+            iterStartTime = System.nanoTime();
 
             newItems = addItemToList(currParetoSet,item);
             unionSet = merge(currParetoSet,newItems);
@@ -128,7 +144,7 @@ public class NU_Core {
                 currParetoSet = findSortedOrder(maximals,maxVector_comp0,minVector_comp0);
             }
             else{
-                maximals = maximaCompute.find_maxima_FLET(unionSet);
+                maximals = flet.find_maxima_FLET(unionSet);
                 currParetoSet = maximals;
 
                 // the size next unionSet would be at most 2*size of current pareto set
@@ -136,16 +152,43 @@ public class NU_Core {
                     Collections.sort(currParetoSet,Collections.reverseOrder());
             }
 
-            iterTime = System.currentTimeMillis()-iterStartTime;
+            if(maximals.size() > maxParetoSize )
+                maxParetoSize = maximals.size();
+            paretoSizeSum += maximals.size();
+            if(maximals.size()< minParetoSize)
+                minParetoSize = maximals.size();
+
+            iterTime = System.nanoTime()-iterStartTime;
             iterTimeSum += iterTime;
 
         }
 
-        long averageIterTime = iterTimeSum/items.size();
-        System.out.print(","+(System.currentTimeMillis() - start)+","+averageIterTime);
-        int averageSize = sizeSum/items.size();
 
-        System.out.print(","+currParetoSet.size()+","+ averageSize+","+maxSize+"\n");
+        long averageIterTime = iterTimeSum/items.size();
+        int averageSize = sizeSum/items.size();
+        int avgParetoSize = paretoSizeSum/items.size();
+        totalTime = System.nanoTime() - start;
+
+        /*
+        * 0 : TotalTime
+        * 1 : AvgIterTime, average time of each iteration
+        * 2 : AvgParetoSize, average size of paretoSize
+        * 3 : MaxParetoSize
+        * 4 : MinParetoSize
+        * 5 : AvgSize, average size each unionSet
+        * 6 : MaxSize, max size of unionSet
+        *
+        * */
+        results[0] = totalTime;
+        results[1] = averageIterTime;
+        results[2] = avgParetoSize;
+        results[3] = maxParetoSize;
+        results[4] = minParetoSize;
+        results[5] = averageSize;
+        results[6] = maxSize;
+
+//        System.out.print(","+currParetoSet.size()+","+ averageSize+","+maxSize+"\n");
+        return results;
     }
 
 

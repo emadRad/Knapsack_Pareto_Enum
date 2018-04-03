@@ -10,7 +10,7 @@ public class Main {
     public void solve(String inputFileName) throws Exception {
 
         if(inputFileName.isEmpty())
-            inputFileName ="Inputs/default/input_4d_11p.dat";
+            inputFileName ="testing/Inputs/default/input_4d_11p.dat";
 
         ReadInput ri = new ReadInput(inputFileName);
 
@@ -45,8 +45,29 @@ public class Main {
 
 
         Collections.reverse(linked_array);
+
+        int dimension = node.getVector().getDimension();
+
+        /*
+         * 0 : TotalTime
+         * 1 : AvgIterTime, average time of each iteration
+         * 2 : AvgParetoSize, average size of paretoSize
+         * 3 : MaxParetoSize
+         * 4 : MinParetoSize
+         * 5 : AvgSize, average size each unionSet
+         * 6 : MaxSize, max size of unionSet
+         *
+         * */
+        long [] results;
+
+//       InputSize,Dim,Time(ms),AvgIterTime,AvgParetoSize,MaxParetoSize,MinParetoSize,AvgSize,MaxSize  >> results.log
+//        System.out.print(linked_array.size()+" "+ dimension);
+
         NU_Core nu_core = new NU_Core(linked_array,itemLabels);
-        nu_core.solve();
+        results = nu_core.solve();
+
+        System.out.println(results[0]+" "+results[1]+" "+ results[2]+" "+results[3]+" "+results[4]+" "+ results[5]+" "+ results[6]);
+
 
 
     }
@@ -58,17 +79,6 @@ public class Main {
             main.solve(args[0]);
         else
             main.solve("");
-    }
-
-
-
-
-
-     public static <T> boolean listEqualsNoOrder(List<T> l1, List<T> l2) {
-        final Set<T> s1 = new HashSet<>(l1);
-        final Set<T> s2 = new HashSet<>(l2);
-
-        return s1.equals(s2);
     }
 
 
