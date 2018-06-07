@@ -46,7 +46,6 @@ public class Main {
 
         Collections.reverse(linked_array);
 
-        int dimension = node.getVector().getDimension();
 
         /*
          * 0 : TotalTime
@@ -69,16 +68,42 @@ public class Main {
         System.out.println(results[0]+" "+results[1]+" "+ results[2]+" "+results[3]+" "+results[4]+" "+ results[5]+" "+ results[6]);
 
 
-
     }
 
 
     public static void main(String[] args) throws Exception {
         Main main = new Main();
-        if(args.length!=0)
+        if (args.length != 0)
             main.solve(args[0]);
-        else
+        else {
+            System.out.printf("");
             main.solve("");
+
+        }
+    }
+
+
+    public void testCorrectness(List<Item> items, ItemLabel [] itemLabels) throws Exception {
+
+        int dimension = items.get(0).getVector().getDimension();
+
+        Testing test = new Testing(items, dimension, itemLabels);
+        FLET flet = new FLET(itemLabels);
+        List<Item> maximals = flet.find_maxima_FLET(items);
+
+        if(!test.isCorrect(maximals)){
+            System.out.printf("Not correct");
+            System.out.print(items.size()+" "+dimension+" ");
+            System.exit(1);
+        }
+        else{
+            if(!test.isComplete(maximals)){
+                System.out.printf("Not complete");
+                System.out.print(items.size()+" "+dimension+" ");
+                System.exit(1);
+            }
+        }
+
     }
 
 

@@ -4,6 +4,7 @@ import NU_Alg.MaximaCompute.FLET;
 import NU_Alg.MaximaCompute.Label;
 import NU_Alg.MaximaCompute.MaximaCompute;
 import NU_Alg.MaximaCompute.Vector;
+import NU_Alg.MaximaCompute.FLET;
 
 import java.util.*;
 
@@ -82,6 +83,7 @@ public class NU_Core {
          after 50000 it is going to use D&C
         */
         int threshold = 50000;
+//        int threshold = 0;
 
         // a timeout in millisecond to control the time
         // 6 hour
@@ -192,21 +194,6 @@ public class NU_Core {
     }
 
 
-    public static <T> Set<T> difference(List<T> l1, List<T> l2) {
-        final Set<T> setA = new HashSet<>(l1);
-        final Set<T> setB = new HashSet<>(l2);
-        Set<T> tmp = new HashSet<T>(setA);
-        tmp.removeAll(setB);
-        return tmp;
-    }
-
-
-    public static <T> boolean listEqualsNoOrder(List<T> l1, List<T> l2) {
-        final Set<T> s1 = new HashSet<>(l1);
-        final Set<T> s2 = new HashSet<>(l2);
-
-        return s1.equals(s2);
-    }
 
 
     /**
@@ -316,7 +303,6 @@ public class NU_Core {
         for(Item item: list){
             items.add(vectorAdd(item, newItem));
         }
-//        items.add(newItem);
         return items;
     }
 
