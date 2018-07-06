@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<project name="knapsack_nu" default="jar" basedir="." >
+<project name="KnapsackParetoEnum" default="jar" basedir="." >
 
 	<!-- global properties= variables -->
-	<property name="source.dir" location="NU_Alg"/>
+	<property name="source.dir" location="de/pareto_enum"/>
 	<property name="build.dir" location="bin" />
 	<property name="testing.dir" location="testing" />
 	<property name="docs.dir" location="docs" />
@@ -18,9 +18,9 @@
 		<mkdir dir="${testing.dir}/Inputs/default" />
 
 		<exec dir="${testing.dir}" executable="python3" failonerror="true" >
-			<arg line=" inputGen.py 11 4" />
+			<arg line=" inputGen.py -s 20 -d 4" />
 		</exec>
-		<move file="${testing.dir}/Inputs/input_4d_11p.dat" todir="${testing.dir}/Inputs/default" />
+		<copy file="${testing.dir}/input_4d_20p.dat" todir="${testing.dir}/Inputs/default" />
 
 	</target>
 
@@ -31,12 +31,12 @@
 	</target>
 
 	<target name="jar" depends="compile" description="making jar file" >
-		<jar destfile="./knapsack_nu.jar">
+		<jar destfile="./knapsackParetoEnum.jar">
 			<manifest>
       				<!-- Who is building this jar? -->
       				<attribute name="Built-By" value="Emad"/>
 							<attribute name="Multi-Release" value="true"/>
-							<attribute name="Main-Class" value="NU_Alg.Main" />	
+							<attribute name="Main-Class" value="de.pareto_enum.Main" />
       				<!-- Information about the program itself -->
       				<attribute name="Implementation-Title" value="Knapsack NU"/>
       				<attribute name="Implementation-Version" value="1.0.0"/>
@@ -49,7 +49,7 @@
       		<zipfileset prefix="META-INF/versions/8/" dir="${build.dir}/classes"/>
 
     		</jar>
-		<copy file="./knapsack_nu.jar" todir="${testing.dir}" />
+		<copy file="./knapsackParetoEnum.jar" todir="${testing.dir}" />
 	</target>
 
 	 <!--[> Delete the build & doc directories  <]-->
@@ -72,12 +72,12 @@
            author="true"
            version="true"
            use="true"
-           windowtitle="NU Algorithm">
+           windowtitle="Pareto Enumerator">
 
     		<fileset dir="${source.dir}" defaultexcludes="yes">
       		<include name="**"/>
-      		<include name="MaximaCompute/**"/>
-      		<include name="NU_Core/**"/>
+      		<include name="maxima_compute/**"/>
+      		<include name="enum_core/**"/>
     		</fileset>
 			    <doctitle><![CDATA[<h1>Test</h1>]]></doctitle>
 			    <bottom><![CDATA[<i>Copyright &#169; 2017 Emad Corp. All Rights Reserved.</i>]]></bottom>

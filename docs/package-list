@@ -1,3 +1,3 @@
-NU_Alg
-NU_Alg.MaximaCompute
-NU_Alg.NU_Core
+de.pareto_enum
+de.pareto_enum.enum_core
+de.pareto_enum.maxima_compute

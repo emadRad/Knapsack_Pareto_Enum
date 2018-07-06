@@ -15,11 +15,11 @@ do
 	timeSum=0
 	for (( j=0; j<=$repeatNum ; j++ ))
 	do
-		python3 inputGen.py $i $dim
+		python3 inputGen.py -s $i -d $dim -p Inputs/
 		fileName=Inputs/input\_"$dim"d\_"$i"p.dat
 
         
-		output=$(java -jar knapsack_nu.jar $fileName) 
+		output=$(java -jar knapsackParetoEnum.jar -f $fileName -m expr) 
 		
 		# arr	
     # 0 : TotalTime
