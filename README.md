@@ -1,6 +1,6 @@
 # Pareto set enumerator
 
-The multidimensional knapsack problem can be solved using the Nemhauser-Ullmann[^1] algorithm. This algorithm generate a sequence of Pareto sets( set of Pareto optimal solutions)  and the running time depends on the size of Pareto sets. The smoothed analysis[^2] of this algorithm is based on the size of Pareto sets.  The main part of this algorithm is to compute the Pareto set. For this task we have implemented the multidimensional divide and conquer[^3] and Fast linear expected-time[^4] (FLET) algorithms. Finally we use this implementation to enumerate the Pareto sets and store some statistics.
+The multidimensional knapsack problem can be solved using the Nemhauser-Ullmann<sup>1</sup> algorithm. This algorithm generate a sequence of Pareto sets( set of Pareto optimal solutions)  and the running time depends on the size of Pareto sets. The smoothed analysis<sup>2</sup> of this algorithm is based on the size of Pareto sets.  The main part of this algorithm is to compute the Pareto set. For this task we have implemented the multidimensional divide and conquer<sup>3</sup> and Fast linear expected-time <sup>4</sup> (FLET) algorithms. Finally we use this implementation to enumerate the Pareto sets and store some statistics.
 
 
 #### Requirement
@@ -50,11 +50,14 @@ For example, you can generate an instance in the same directory(the default path
 $ python3 inputGen.py -s 640 -d 4
 ```
 
-  This command creates a file named **input\_4d\_640p.dat **  in the same directory as the **inputGen.py** script.
+  This command creates a file named **input\_4d\_640p.dat**  in the same directory as the **inputGen.py** script.
 
 
 
 [^1]: Discrete dynamic programming and capital allocation. George L. Nemhauser and Zev Ullmann
+
 [^2]: Smoothed analysis of algorithms: Daniel A. Spielman and Shang-Hua Teng
+
 [^3]: Multidimensional Divide-and-conquer: Jon Louis Bentley.
+
 [^4]: Fast linear expected-time algorithms for computing maxima and convex hulls: Jon L. Bentley, Kenneth L. Clarkson, and David B. Levine.
