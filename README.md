@@ -54,10 +54,10 @@ $ python3 inputGen.py -s 640 -d 4
 
 
 
-[^1]: Discrete dynamic programming and capital allocation. George L. Nemhauser and Zev Ullmann
+[1]: Discrete dynamic programming and capital allocation. George L. Nemhauser and Zev Ullmann
 
-[^2]: Smoothed analysis of algorithms: Daniel A. Spielman and Shang-Hua Teng
+[2]: Smoothed analysis of algorithms: Daniel A. Spielman and Shang-Hua Teng
 
-[^3]: Multidimensional Divide-and-conquer: Jon Louis Bentley.
+[3]: Multidimensional Divide-and-conquer: Jon Louis Bentley.
 
-[^4]: Fast linear expected-time algorithms for computing maxima and convex hulls: Jon L. Bentley, Kenneth L. Clarkson, and David B. Levine.
+[4]: Fast linear expected-time algorithms for computing maxima and convex hulls: Jon L. Bentley, Kenneth L. Clarkson, and David B. Levine.
